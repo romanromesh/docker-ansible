@@ -1,0 +1,87 @@
+---
+- name: Install Docker and Docker Compose
+  hosts: all
+  become: true
+
+  tasks:
+    - name: Install required packages
+      apt:
+        name:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - software-properties-common
+        state: present
+
+    - name: Add Docker GPG key
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+
+    - name: Add Docker repository
+      apt_repository:
+        repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable
+        state: present
+
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+
+    - name: Install Docker CE
+      apt:
+        name: docker-ce
+        state: present
+
+    - name: Install Docker Compose
+      get_url:
+          url : https://github.com/docker/compose/releases/download/1.29.2/docker-compose-Linux-x86_64
+          dest: /usr/local/bin/docker-compose
+          mode: 'u+x,g+x'
+            #  command: sudo curl -L https://github.com/docker/compose/releases/download/1.29.2/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose
+      # command: curl -L https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)  -o /usr/local/bin/docker-compose
+      #    args:
+      #  creates: /usr/local/bin/docker-compose
+          #   executable: /bin/bash
+
+    - name: Set Docker Compose permissions
+      file:
+        path: /usr/local/bin/docker-compose
+        mode: 'a+x'
+
+    - name: Start Docker service
+      service:
+        name: docker
+        state: started
+        enabled: true
+       
+          #    - name: Open zip file
+          #      unarchive:
+          #        src: /home/ubuntu/monitoring.tar.gz 
+          #        dest: /tmp/
+          #        remote_src: yes
+
+    - name: check if file exist
+      stat:
+        path: /home/ubuntu/ansible/monitoring.tar.gz
+      register: file_stat
+      ignore_errors: yes
+
+    - name: Move file if it exists
+      command: mv /home/ubuntu/ansible/monitoring.tar.gz /opt/
+      when: file_stat.stat.exists       
+
+    - name: Open zip file
+      unarchive:
+        src: /opt/monitoring.tar.gz
+        dest: /opt/
+        remote_src: yes     
+
+
+    - name: Change to the directory containing the docker-compose.yml file
+      become: true
+      shell: cd /opt/monitoring 
+
+    - name: Run docker-compose up
+      become: true
+      command: docker-compose -f /opt/monitoring/docker-compose.yml up -d
+

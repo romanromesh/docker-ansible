@@ -1,0 +1,15 @@
+This Ansible playbook performs the following tasks to install Docker and Docker Compose on target hosts and then deploys a monitoring stack using Docker Compose:
+
+Installs required packages like apt-transport-https, ca-certificates, curl, and software-properties-common.
+Adds the Docker GPG key.
+Adds the Docker repository.
+Updates the apt cache.
+Installs Docker CE.
+Downloads Docker Compose binary from the official GitHub release.
+Sets execute permissions for the Docker Compose binary.
+Starts the Docker service.
+Checks if the file /home/ubuntu/monitoring.tar.gz exists.
+Moves the file to /opt/ if it exists.
+Extracts the contents of /opt/monitoring.tar.gz to /opt/.
+Changes the working directory to /opt/monitoring.
+Runs docker-compose up -d to deploy the monitoring stack using the docker-compose.yml file located in /opt/monitoring.
