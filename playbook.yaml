@@ -59,22 +59,28 @@
           #        src: /home/ubuntu/monitoring.tar.gz 
           #        dest: /tmp/
           #        remote_src: yes
+          #        
 
+    - name: Copy file to remote machine
+      copy:
+        src: /home/ubuntu/ansible/monitoring.tar.gz
+        dest: /opt/
     - name: check if file exist
       stat:
-        path: /home/ubuntu/ansible/monitoring.tar.gz
+        path: /opt/monitoring.tar.gz
       register: file_stat
       ignore_errors: yes
 
-    - name: Move file if it exists
-      command: mv /home/ubuntu/ansible/monitoring.tar.gz /opt/
-      when: file_stat.stat.exists       
+        #    - name: Move file if it exists
+        #    command: mv /home/ubuntu/ansible/monitoring.tar.gz /opt/
+        #     when: file_stat.stat.exists       
 
     - name: Open zip file
       unarchive:
         src: /opt/monitoring.tar.gz
         dest: /opt/
-        remote_src: yes     
+        remote_src: yes    
+      when: file_stat.stat.exists      
 
 
     - name: Change to the directory containing the docker-compose.yml file
