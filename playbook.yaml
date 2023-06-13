@@ -63,7 +63,7 @@
 
     - name: Copy file to remote machine
       copy:
-        src: /home/ubuntu/ansible/monitoring.tar.gz
+        src: monitoring.tar.gz
         dest: /opt/
     - name: check if file exist
       stat:
